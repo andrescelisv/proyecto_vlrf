@@ -1,0 +1,161 @@
+<html>
+  <head>
+    <title>BareBones gDriveSync Demo</title>
+    <script src="../lib/login.service.js"></script>
+    <script src="../lib/drive.service.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+    			  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    			  crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <h1>gDriveSync</h1>
+
+      
+
+      
+
+      <script src="https://apis.google.com/js/api.js"></script>
+      <script>
+        /**
+         * Sample JavaScript code for drive.permissions.list
+         * See instructions for running APIs Explorer code samples locally:
+         * https://developers.google.com/explorer-help/guides/code_samples#javascript
+         */
+      
+        function authenticate() {
+          return gapi.auth2.getAuthInstance()
+              .signIn({scope: "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/drive.photos.readonly https://www.googleapis.com/auth/drive.readonly"})
+              .then(function() { console.log("Sign-in successful"); },
+                    function(err) { console.error("Error signing in", err); });
+        }
+        function loadClient() {
+          gapi.client.setApiKey("AIzaSyD7Vk3l3BaQ43I_YW1A8Nl2fO1u1HGPXL8");
+          return gapi.client.load("https://content.googleapis.com/discovery/v1/apis/drive/v3/rest")
+              .then(function() { console.log("GAPI client loaded for API"); },
+                    function(err) { console.error("Error loading GAPI client for API", err); });
+        }
+        
+        // Make sure the client is loaded and sign-in is complete before calling this method.
+        function execute() {
+          return gapi.client.drive.permissions.list({
+            "fileId": "1dn8lVEq7ZOWoX5mykPpfOqrrunHwjXmR",
+            "supportsAllDrives": true,
+            "useDomainAdminAccess": false
+          })
+              .then(function(response) {
+                      // Handle the results here (response.result has the parsed body).
+                      console.log("Response", response);
+                    },
+                    function(err) { console.error("Execute error", err); });
+        }
+        gapi.load("client:auth2", function() {
+          gapi.auth2.init({client_id: "766562886222-bu6lhs9pcrqcsvov234t2bd9v66pn6ql.apps.googleusercontent.com"});
+        });
+
+
+        /**
+ * Copy an existing file.
+ *
+ * @param {String} originFileId ID of the origin file to copy.
+ * @param {String} copyTitle Title of the copy.
+ * /**
+ * Print a file's metadata.
+ *
+ * @param {String} fileId ID of the file to print metadata for.
+ * 
+ */
+
+ 
+function lectura() {
+  return gapi.client.drive.files.get({
+    'fileId': "1dn8lVEq7ZOWoX5mykPpfOqrrunHwjXmR"
+  }).then(function(response) {
+                      // Handle the results here (response.result has the parsed body).
+                      console.log("Response", response);
+                    },
+                    function(err) { console.error("Execute error", err); });
+
+   
+    //console.log("titulo",respuesta);
+    /*console.log("titulo",respuesta.description);
+    console.log("titulo",respuesta.mimeType);*/
+
+        
+  
+}
+function printFile() {
+  gapi.client.drive.files.export({
+    'fileId': "1dn8lVEq7ZOWoX5mykPpfOqrrunHwjXmR",
+    'mimeType' : 'text/plain'
+}).then(function(success){
+    console.log(success);
+    //success.result    
+}, function(fail){
+    console.log(fail);
+    console.log('Error '+ fail.result.error.message);
+})
+}
+
+function readFile(fileId, callback) {
+    var request = gapi.client.drive.files.get({
+      'fileId': "1dn8lVEq7ZOWoX5mykPpfOqrrunHwjXmR",
+        alt: 'media'
+    })
+    request.then(function(response) {
+        console.log(response); //response.body contains the string value of the file
+        if (typeof callback === "function") callback(response.body);
+    }, function(error) {
+        console.error(error)
+    })
+    return request;
+}
+
+
+
+
+
+
+/**
+ * Download a file's content.
+ *
+ * @param {File} file Drive File instance.
+ * @param {Function} callback Function to call when the request is complete.
+ */
+function downloadFile(file, callback) {
+  if (file.downloadUrl) {
+    var accessToken = gapi.auth.getToken().access_token;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', file.downloadUrl);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+    xhr.onload = function() {
+      callback(xhr.responseText);
+    };
+    xhr.onerror = function() {
+      callback(null);
+    };
+    xhr.send();
+  } else {
+    callback(null);
+  }
+}
+
+    originFileId="1dn8lVEq7ZOWoX5mykPpfOqrrunHwjXmR";
+    copyTitle="newfile";
+    function copyFile(originFileId, copyTitle) {
+        var body = {'title': copyTitle};
+        var request = gapi.client.drive.files.copy({
+        'fileId': originFileId,
+        'resource': body
+      });
+      request.execute(function(resp) {
+      console.log('Copy ID: ' + resp.id);
+  });
+}
+      </script>
+      <button onclick="authenticate().then(loadClient)">authorize and load</button>
+      <button onclick="execute()">execute</button>
+      <button onclick="printFile()">downloadFile</button>
+      <button onclick="copyFile()">copyFile</button>
+    <script src="https://apis.google.com/js/api.js?onload=initGapi"></script>
+  </body>
+</html>
